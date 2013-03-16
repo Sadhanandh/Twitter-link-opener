@@ -1,0 +1,10 @@
+The Url shared in twitter along with a specified search term is instantly opened in the browser.
+Helps in availing discounts and winning online contests where agility and speed is important.
+Automates the quick link opening process
+There are 2 versions ->
+Polling - uses the refresh rate specified in config.ini
+Streaming -> always connected using a socket. 
+			adv 	-> REALTIME.
+			disadv  -> AUTH required.
+
+

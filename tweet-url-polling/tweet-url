@@ -1,0 +1,76 @@
+#! /usr/bin/env python
+##!/usr/bin/python
+# Python code
+# 
+#
+import support.twitter as twitter
+import re
+import subprocess
+import time
+import os
+
+
+user_n = "nokia"
+words_n = "nokia"
+sec_ = 5
+settingsfile = "config.ini"
+dctfile = "dictfile"
+linkdict = {}
+
+def dictreader(dctfile):
+	dct = {}
+	if os.path.isfile(dctfile):
+		f = open(dctfile)
+		for line in f.readlines():
+			dct[line.strip("\n")] = "Done"
+		f.close()
+	return dct
+
+def dictwriter(dctfile,dct):
+	f = open(dctfile,"w")
+	tup = [c+"\n" for c in dct.keys()]
+	f.writelines(tup)
+	f.close()
+
+
+
+
+
+def runme(user_n,words_n,linkdict):
+	print user_n,words_n
+	api = twitter.Api()
+	stream = api.GetUserTimeline(user_n)
+	for tweets in stream:
+		data = tweets.text
+		found = re.findall(".*?("+words_n+").*",data,re.I)
+		if len(found)!=0:
+			links = re.findall(".*?(http:\/\/\S+).*?",data,re.I)
+			if len(links)!=0:
+				for link in links:
+					if link not in linkdict:
+						print link
+						subprocess.call(("open",link))
+						linkdict[link]="Done"
+
+if __name__ == "__main__":
+
+	linkdict=dictreader(dctfile)
+	if os.path.exists(settingsfile):
+		fr = open(settingsfile)
+		data = fr.read()
+		ma = re.findall("User\s*Name\s*:\s*(\S+)",data,re.IGNORECASE)
+		if ma != []:
+			user_n = ma[0]
+		ma = re.findall("Word\s*:\s*(\S+.*)",data,re.IGNORECASE)
+		if ma != []:
+			words_n = ma[0]
+		ma = re.findall("Refresh\s*:\s*(\d*)",data,re.IGNORECASE)
+		if ma != []:
+			sec_ = int(ma[0])
+
+	print sec_
+	while(True):
+		runme(user_n,words_n,linkdict)
+		dictwriter(dctfile,linkdict)
+		time.sleep(sec_)
+	
